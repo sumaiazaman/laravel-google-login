@@ -3,6 +3,8 @@
 namespace Sumaia\GoogleOneTapLogin\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Blade;
+use Sumaia\GoogleOneTapLogin\View\Components\GoogleOneTapButton;
 
 class GoogleOneTapServiceProvider extends ServiceProvider
 {
@@ -16,6 +18,9 @@ class GoogleOneTapServiceProvider extends ServiceProvider
             __DIR__ . '/../../config/google-onetap.php',
             'google-onetap'
         );
+
+        // Register the GoogleOneTap service as a singleton
+        $this->app->singleton(\Sumaia\GoogleOneTapLogin\GoogleOneTap::class, fn() => new \Sumaia\GoogleOneTapLogin\GoogleOneTap());
     }
 
     /**
@@ -31,6 +36,12 @@ class GoogleOneTapServiceProvider extends ServiceProvider
 
         // Load package migrations
         $this->loadMigrationsFrom(__DIR__ . '/../../database/migrations');
+
+        // Register Blade components
+        Blade::component('google-onetap-button', GoogleOneTapButton::class);
+
+        // Register Blade directive for simple integration
+        Blade::directive('googleOneTap', fn() => "<?php echo view('google-onetap::components.google-onetap-button', ['autoPrompt' => true])->render(); ?>");
 
         // Publish configuration file
         $this->publishes([

@@ -11,7 +11,8 @@ class TestCase extends Orchestra
     {
         parent::setUp();
 
-        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+        // Only load test migrations, not package migrations to avoid conflicts
+        $this->loadMigrationsFrom(__DIR__ . '/database/migrations');
     }
 
     protected function getPackageProviders($app)
@@ -39,8 +40,5 @@ class TestCase extends Orchestra
         config()->set('google-onetap.client_secret', 'test-client-secret');
     }
 
-    protected function defineDatabaseMigrations()
-    {
-        $this->loadMigrationsFrom(__DIR__ . '/database/migrations');
-    }
+
 }

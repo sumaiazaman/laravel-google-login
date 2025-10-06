@@ -31,24 +31,36 @@ A Laravel package that provides seamless Google One Tap authentication integrati
 composer require sumaia/google-onetap-login
 ```
 
-### 2. Publish Configuration (Optional)
+The package will be automatically discovered by Laravel.
+
+### 2. Publish Configuration (Required)
 
 ```bash
 php artisan vendor:publish --tag=google-onetap-config
 ```
 
-### 3. Publish and Run Migrations
+This creates `config/google-onetap.php` for customization.
+
+### 3. Publish and Run Migrations (Required)
 
 ```bash
 php artisan vendor:publish --tag=google-onetap-migrations
 php artisan migrate
 ```
 
+This adds `google_id` and `avatar` fields to your users table.
+
 ### 4. Publish Views (Optional)
 
 ```bash
 php artisan vendor:publish --tag=google-onetap-views
 ```
+
+### 5. Verify Installation
+
+After installation, verify everything is working correctly:
+
+📋 **[Installation Verification Guide](INSTALLATION_VERIFICATION.md)** - Complete checklist and troubleshooting
 
 ## Configuration
 
@@ -128,6 +140,51 @@ Once installed and configured, the package automatically provides these routes:
 - `POST /auth/google/callback` - Handles Google authentication
 - `GET /dashboard` - Protected dashboard (requires authentication)
 - `POST /logout` - User logout
+
+### Easy Integration Options
+
+The package provides multiple ways to integrate Google One Tap into your application:
+
+#### 1. Using the Blade Component (Recommended)
+
+```blade
+{{-- In any Blade template --}}
+<x-google-onetap-button />
+
+{{-- With custom options --}}
+<x-google-onetap-button
+    :auto-prompt="true"
+    button-type="standard"
+    button-theme="filled_blue"
+    button-size="large" />
+```
+
+#### 2. Using the Blade Directive
+
+```blade
+{{-- Simple one-line integration --}}
+@googleOneTap
+```
+
+#### 3. Using the Service Class
+
+```php
+// In your controller
+use Sumaia\GoogleOneTapLogin\GoogleOneTap;
+
+class AuthController extends Controller
+{
+    public function handleGoogleAuth(Request $request, GoogleOneTap $googleOneTap)
+    {
+        try {
+            $result = $googleOneTap->authenticate($request->credential);
+            return response()->json($result);
+        } catch (Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+}
+```
 
 ### Custom Routes
 
@@ -244,7 +301,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Security
 
-If you discover any security-related issues, please email security@startise.com instead of using the issue tracker.
+If you discover any security-related issues, please email security@sumaia.dev instead of using the issue tracker.
 
 ## License
 
@@ -252,7 +309,7 @@ The MIT License (MIT). Please see [License File](LICENSE.md) for more informatio
 
 ## Credits
 
-- [Startise](https://github.com/startise)
+- [Sumaia](https://github.com/sumaia)
 - [All Contributors](../../contributors)
 
 ## Examples
@@ -271,7 +328,7 @@ After installation, users can immediately use Google One Tap login by visiting `
 You can also use the package in your own controllers:
 
 ```php
-use Startise\GoogleOneTapLogin\Http\Controllers\GoogleOneTapController;
+use Sumaia\GoogleOneTapLogin\Http\Controllers\GoogleOneTapController;
 
 class AuthController extends Controller
 {

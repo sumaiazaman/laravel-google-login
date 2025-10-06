@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Login - {{ config('app.name', 'Laravel') }}</title>
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -48,33 +48,7 @@
             font-size: 1rem;
             line-height: 1.5;
         }
-        .google-signin-container {
-            margin: 2rem 0;
-            display: flex;
-            justify-content: center;
-        }
-        .alert {
-            padding: 1rem;
-            margin: 1rem 0;
-            border-radius: 8px;
-            display: none;
-            font-size: 0.9rem;
-        }
-        .alert-success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        .alert-error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        .alert-info {
-            background-color: #d1ecf1;
-            color: #0c5460;
-            border: 1px solid #bee5eb;
-        }
+
         .footer-text {
             margin-top: 2rem;
             color: #666;
@@ -88,6 +62,8 @@
             color: #999;
             font-size: 0.8rem;
         }
+
+
     </style>
 </head>
 <body>
@@ -95,145 +71,22 @@
         <div class="logo">
             <h1>{{ config('app.name', 'Laravel') }}</h1>
         </div>
-        
+
         <h2 class="title">Welcome Back!</h2>
         <p class="subtitle">Sign in with your Google account to continue</p>
-        
-        <div id="alert" class="alert"></div>
-        
-        <div class="google-signin-container">
-            <!-- Google One Tap Configuration -->
-            <div id="g_id_onload"
-                 data-client_id="{{ config('google-onetap.client_id') }}"
-                 data-context="{{ config('google-onetap.one_tap.context', 'signin') }}"
-                 data-ux_mode="{{ config('google-onetap.one_tap.ux_mode', 'popup') }}"
-                 data-callback="handleCredentialResponse"
-                 data-auto_prompt="{{ config('google-onetap.one_tap.auto_prompt', true) ? 'true' : 'false' }}"
-                 data-cancel_on_tap_outside="{{ config('google-onetap.one_tap.cancel_on_tap_outside', false) ? 'true' : 'false' }}"
-                 data-prompt_parent_id="{{ config('google-onetap.one_tap.prompt_parent_id') }}"
-                 data-moment_callback="onOneTapMoment">
-            </div>
 
-            <!-- Fallback Sign-In Button -->
-            <div class="g_id_signin"
-                 data-type="{{ config('google-onetap.one_tap.button.type', 'standard') }}"
-                 data-shape="{{ config('google-onetap.one_tap.button.shape', 'rectangular') }}"
-                 data-theme="{{ config('google-onetap.one_tap.button.theme', 'outline') }}"
-                 data-text="{{ config('google-onetap.one_tap.button.text', 'signin_with') }}"
-                 data-size="{{ config('google-onetap.one_tap.button.size', 'large') }}"
-                 data-logo_alignment="{{ config('google-onetap.one_tap.button.logo_alignment', 'left') }}">
-            </div>
-        </div>
+        <!-- Google One Tap Component -->
+        <x-google-onetap-button />
 
-        <div id="one-tap-info" class="alert alert-info" style="display: none;">
-            <strong>Google One Tap:</strong> The automatic sign-in modal will appear shortly. If it doesn't appear, you can use the button above to sign in.
-        </div>
-        
         <p class="footer-text">
             By signing in, you agree to our Terms of Service and Privacy Policy.
         </p>
-        
+
         <div class="powered-by">
             Powered by Google One Tap Login Package
         </div>
     </div>
 
-    <script>
-        // Set up CSRF token for all AJAX requests
-        window.Laravel = {
-            csrfToken: document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-        };
 
-        // Handle the credential response from Google One Tap
-        function handleCredentialResponse(response) {
-            const alertDiv = document.getElementById('alert');
-            
-            // Show loading state
-            showAlert('Processing login...', 'info');
-            
-            // Send the credential to your backend
-            fetch('{{ route(config("google-onetap.route_names.callback", "google-onetap.callback")) }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': window.Laravel.csrfToken,
-                    'Accept': 'application/json',
-                },
-                body: JSON.stringify({
-                    credential: response.credential
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showAlert('Login successful! Redirecting...', 'success');
-                    // Redirect to dashboard or intended page
-                    setTimeout(() => {
-                        window.location.href = data.redirect || '{{ config("google-onetap.redirects.after_login", "/dashboard") }}';
-                    }, 1000);
-                } else {
-                    showAlert(data.error || 'Login failed. Please try again.', 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showAlert('An error occurred. Please try again.', 'error');
-            });
-        }
-
-        function showAlert(message, type) {
-            const alertDiv = document.getElementById('alert');
-            alertDiv.textContent = message;
-            alertDiv.className = 'alert alert-' + type;
-            alertDiv.style.display = 'block';
-            
-            if (type === 'success') {
-                setTimeout(() => {
-                    alertDiv.style.display = 'none';
-                }, 3000);
-            }
-        }
-
-        // Handle Google One Tap moments (when the prompt is displayed, dismissed, etc.)
-        function onOneTapMoment(moment) {
-            console.log('Google One Tap moment:', moment);
-            const infoDiv = document.getElementById('one-tap-info');
-
-            switch (moment.getMomentType()) {
-                case 'display':
-                    console.log('Google One Tap modal displayed');
-                    infoDiv.style.display = 'none';
-                    break;
-                case 'skipped':
-                    console.log('Google One Tap skipped:', moment.getSkippedReason());
-                    infoDiv.textContent = 'Google One Tap was skipped. Please use the sign-in button below.';
-                    infoDiv.style.display = 'block';
-                    break;
-                case 'dismissed':
-                    console.log('Google One Tap dismissed:', moment.getDismissedReason());
-                    infoDiv.textContent = 'Google One Tap was dismissed. You can still sign in using the button below.';
-                    infoDiv.style.display = 'block';
-                    break;
-            }
-        }
-
-        // Initialize Google One Tap when the page loads
-        window.onload = function() {
-            console.log('Google One Tap initialized');
-
-            // Show info about One Tap after a short delay if it hasn't appeared
-            setTimeout(() => {
-                const infoDiv = document.getElementById('one-tap-info');
-                if (infoDiv.style.display === 'none' || !infoDiv.style.display) {
-                    infoDiv.style.display = 'block';
-
-                    // Hide the info after 5 seconds
-                    setTimeout(() => {
-                        infoDiv.style.display = 'none';
-                    }, 5000);
-                }
-            }, 2000);
-        };
-    </script>
 </body>
 </html>

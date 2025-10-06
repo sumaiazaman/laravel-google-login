@@ -1,91 +1,206 @@
 # Installation Guide
 
-This guide will walk you through the complete installation and setup process for the Google One Tap Login package.
+This comprehensive guide will walk you through the complete installation and setup process for the Google One Tap Login package.
 
 ## Prerequisites
 
-Before installing this package, make sure you have:
+Before installing this package, ensure you have:
 
-- PHP 8.1 or higher
-- Laravel 10.x, 11.x, or 12.x
-- Composer installed
-- A Google Cloud Console account
+- **PHP**: 8.1 or higher
+- **Laravel**: 10.x, 11.x, or 12.x
+- **Composer**: Latest version installed
+- **Google Cloud Console**: Account with project creation access
+- **Database**: MySQL, PostgreSQL, SQLite, or SQL Server
+- **Web Server**: Apache, Nginx, or Laravel's built-in server
 
 ## Step 1: Install the Package
 
-Install the package via Composer:
+### 1.1 Install via Composer
+
+Install the package using Composer in your Laravel project root:
 
 ```bash
 composer require sumaia/google-onetap-login
 ```
 
-The package will be automatically discovered by Laravel.
+The package will be automatically discovered by Laravel thanks to auto-discovery.
+
+### 1.2 Verify Installation
+
+Verify the package is installed correctly by checking if the service provider is loaded:
+
+```bash
+php artisan package:discover
+```
+
+You should see `Sumaia\GoogleOneTapLogin\Providers\GoogleOneTapServiceProvider` in the discovered providers list.
+
+### 1.3 Check Package Version
+
+Confirm the installed version:
+
+```bash
+composer show sumaia/google-onetap-login
+```
 
 ## Step 2: Publish Package Assets
 
-### Publish Configuration (Recommended)
+### 2.1 Publish Configuration (Required)
+
+Publish the configuration file to customize package behavior:
 
 ```bash
 php artisan vendor:publish --tag=google-onetap-config
 ```
 
-This creates `config/google-onetap.php` where you can customize the package behavior.
+This creates `config/google-onetap.php` where you can customize:
+- Google OAuth credentials
+- User model and field mappings
+- Security settings
+- UI customization options
+- Route configurations
 
-### Publish and Run Migrations
+### 2.2 Publish and Run Migrations (Required)
+
+Publish the database migrations and run them:
 
 ```bash
 php artisan vendor:publish --tag=google-onetap-migrations
 php artisan migrate
 ```
 
-This adds `google_id` and `avatar` fields to your users table.
+This adds the following fields to your users table:
+- `google_id` (string, nullable) - Stores Google user ID
+- `avatar` (string, nullable) - Stores Google profile picture URL
 
-### Publish Views (Optional)
+**Important Notes:**
+- If you already have these fields, you can skip the migration or modify it accordingly
+- The migration is designed to be non-destructive and won't affect existing data
+- You can customize field names in the configuration file
+
+### 2.3 Publish Views (Optional)
+
+Publish views for customization:
 
 ```bash
 php artisan vendor:publish --tag=google-onetap-views
 ```
 
-This publishes views to `resources/views/vendor/google-onetap/` for customization.
+This publishes views to `resources/views/vendor/google-onetap/` including:
+- Login page template
+- Dashboard template
+- Google One Tap button component
+
+### 2.4 Publish All Assets at Once
+
+Alternatively, publish everything at once:
+
+```bash
+php artisan vendor:publish --provider="Sumaia\GoogleOneTapLogin\Providers\GoogleOneTapServiceProvider"
+```
+
+### 2.5 Clear Caches
+
+After publishing, clear Laravel caches:
+
+```bash
+php artisan config:clear
+php artisan view:clear
+php artisan route:clear
+```
 
 ## Step 3: Google Cloud Console Setup
 
 ### 3.1 Create a Google Cloud Project
 
-1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Click "Select a project" → "New Project"
-3. Enter a project name and click "Create"
+1. **Navigate to Google Cloud Console**
+   - Go to [Google Cloud Console](https://console.cloud.google.com/)
+   - Sign in with your Google account
+
+2. **Create New Project**
+   - Click "Select a project" dropdown → "New Project"
+   - Enter a descriptive project name (e.g., "My Laravel App - Google Auth")
+   - Select your organization (if applicable)
+   - Click "Create" and wait for project creation
+
+3. **Select Your Project**
+   - Ensure your new project is selected in the project dropdown
 
 ### 3.2 Enable Required APIs
 
-1. In the Google Cloud Console, go to "APIs & Services" → "Library"
-2. Search for "Google+ API" and enable it
+1. **Navigate to APIs & Services**
+   - In the Google Cloud Console, go to "APIs & Services" → "Library"
 
-### 3.3 Create OAuth 2.0 Credentials
+2. **Enable Google+ API**
+   - Search for "Google+ API"
+   - Click on it and click "Enable"
+   - Wait for the API to be enabled
 
-1. Go to "APIs & Services" → "Credentials"
-2. Click "Create Credentials" → "OAuth 2.0 Client ID"
-3. If prompted, configure the OAuth consent screen first:
-   - Choose "External" user type
-   - Fill in the required fields (App name, User support email, Developer contact)
-   - Add your domain to "Authorized domains"
-   - Save and continue through the scopes and test users steps
+### 3.3 Configure OAuth Consent Screen
 
-4. For the OAuth 2.0 Client ID:
-   - Application type: "Web application"
-   - Name: Your app name
-   - Authorized JavaScript origins:
-     ```
-     http://localhost:8000
-     https://yourdomain.com
-     ```
-   - Authorized redirect URIs:
-     ```
-     http://localhost:8000/auth/google/callback
-     https://yourdomain.com/auth/google/callback
-     ```
+Before creating credentials, you must configure the OAuth consent screen:
 
-5. Click "Create" and copy the Client ID and Client Secret
+1. **Go to OAuth Consent Screen**
+   - Navigate to "APIs & Services" → "OAuth consent screen"
+
+2. **Choose User Type**
+   - Select "External" (for public apps) or "Internal" (for G Suite organizations)
+   - Click "Create"
+
+3. **Fill App Information**
+   - **App name**: Your application name
+   - **User support email**: Your email address
+   - **App logo**: Upload your app logo (optional)
+   - **App domain**: Your website domain
+   - **Authorized domains**: Add your domains (e.g., `yourdomain.com`)
+   - **Developer contact information**: Your email address
+
+4. **Configure Scopes**
+   - Click "Add or Remove Scopes"
+   - Add these scopes:
+     - `../auth/userinfo.email`
+     - `../auth/userinfo.profile`
+     - `openid`
+   - Click "Update"
+
+5. **Add Test Users** (for External apps in testing)
+   - Add email addresses of users who can test your app
+   - Click "Save and Continue"
+
+### 3.4 Create OAuth 2.0 Credentials
+
+1. **Navigate to Credentials**
+   - Go to "APIs & Services" → "Credentials"
+
+2. **Create OAuth 2.0 Client ID**
+   - Click "Create Credentials" → "OAuth 2.0 Client ID"
+
+3. **Configure Application Type**
+   - **Application type**: "Web application"
+   - **Name**: Descriptive name (e.g., "Laravel Google One Tap")
+
+4. **Set Authorized JavaScript Origins**
+   Add all domains where your app will run:
+   ```
+   http://localhost:8000
+   http://127.0.0.1:8000
+   https://yourdomain.com
+   https://www.yourdomain.com
+   ```
+
+5. **Set Authorized Redirect URIs**
+   Add callback URLs for your app:
+   ```
+   http://localhost:8000/auth/google/callback
+   http://127.0.0.1:8000/auth/google/callback
+   https://yourdomain.com/auth/google/callback
+   https://www.yourdomain.com/auth/google/callback
+   ```
+
+6. **Create and Save Credentials**
+   - Click "Create"
+   - **Important**: Copy and securely store the Client ID and Client Secret
+   - Download the JSON file for backup
 
 ## Step 4: Environment Configuration
 
@@ -94,6 +209,14 @@ Add the Google credentials to your `.env` file:
 ```env
 GOOGLE_CLIENT_ID=your_google_client_id_here
 GOOGLE_CLIENT_SECRET=your_google_client_secret_here
+```
+
+### Clear Configuration Cache
+
+After updating your `.env` file, clear the configuration cache:
+
+```bash
+php artisan config:clear
 ```
 
 ## Step 5: Update User Model
@@ -112,18 +235,102 @@ protected $fillable = [
 ];
 ```
 
-## Step 6: Test the Installation
+## Step 6: Integration Options
 
-1. Start your Laravel development server:
-   ```bash
-   php artisan serve
-   ```
+Choose one of these integration methods:
 
-2. Visit `http://localhost:8000/login` in your browser
+### Option A: Use Built-in Routes (Easiest)
 
-3. You should see the Google One Tap login interface
+The package automatically provides `/login`, `/dashboard`, and logout routes. Just visit `/login` to see Google One Tap in action.
 
-4. Click "Sign in with Google" to test the authentication
+### Option B: Use Blade Component in Your Views
+
+Add Google One Tap to any view:
+
+```blade
+{{-- Simple integration --}}
+<x-google-onetap-button />
+
+{{-- With custom options --}}
+<x-google-onetap-button
+    :auto-prompt="true"
+    button-type="standard"
+    button-theme="filled_blue"
+    button-size="large" />
+```
+
+### Option C: Use Blade Directive
+
+```blade
+{{-- One-line integration --}}
+@googleOneTap
+```
+
+### Option D: Custom Implementation
+
+Use the GoogleOneTap service in your controllers:
+
+```php
+use Sumaia\GoogleOneTapLogin\GoogleOneTap;
+
+class AuthController extends Controller
+{
+    public function handleGoogleAuth(Request $request, GoogleOneTap $googleOneTap)
+    {
+        try {
+            $result = $googleOneTap->authenticate($request->credential);
+            return response()->json($result);
+        } catch (Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+}
+```
+
+## Step 7: Test the Installation
+
+### 7.1 Start Development Server
+
+Start your Laravel development server:
+
+```bash
+php artisan serve
+```
+
+Your application will be available at `http://localhost:8000` or `http://127.0.0.1:8000`.
+
+### 7.2 Test Google One Tap Interface
+
+1. **Visit Login Page**
+   - Navigate to `http://localhost:8000/login` in your browser
+
+2. **Verify Google One Tap Modal**
+   - The Google One Tap modal should automatically appear in the top-right corner
+   - If you're signed into Google, you should see your account(s) listed
+
+3. **Test Authentication**
+   - Click on your Google account in the modal
+   - You should be redirected to the dashboard upon successful authentication
+
+### 7.3 Test Fallback Button
+
+If the modal doesn't appear:
+1. Look for the "Sign in with Google" button on the login page
+2. Click it to test the authentication flow
+3. Complete the Google OAuth flow
+
+### 7.4 Verify Dashboard Access
+
+After successful authentication:
+1. You should be redirected to `/dashboard`
+2. Your Google profile information should be displayed
+3. Your user record should be created in the database
+
+### 7.5 Test Logout
+
+1. Click the logout button on the dashboard
+2. You should be redirected back to the login page
+3. Your session should be cleared
 
 ## Troubleshooting
 
