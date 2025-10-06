@@ -113,9 +113,10 @@ return [
     */
 
     'one_tap' => [
-        'auto_prompt' => false,
+        'auto_prompt' => true,
         'context' => 'signin',
         'ux_mode' => 'popup',
+        'cancel_on_tap_outside' => false,
         'button' => [
             'type' => 'standard',
             'shape' => 'rectangular',

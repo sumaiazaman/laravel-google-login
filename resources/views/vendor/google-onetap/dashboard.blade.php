@@ -204,7 +204,7 @@
 
         <div class="package-info">
             <h4>🚀 Powered by Google One Tap Login Package</h4>
-            <p>This dashboard is provided by the startise/google-onetap-login package. You can customize this view by publishing the package views.</p>
+            <p>This dashboard is provided by the sumaia/google-onetap-login package. You can customize this view by publishing the package views.</p>
         </div>
     </div>
 </body>
