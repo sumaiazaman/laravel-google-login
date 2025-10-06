@@ -8,13 +8,14 @@ A Laravel package that provides seamless Google One Tap authentication integrati
 
 ## Features
 
-- 🚀 **Easy Installation** - Install with a single Composer command
+- 🚀 **Google One Tap** - Automatic modal popup for seamless sign-in experience
 - 🔐 **Secure Authentication** - JWT token verification using Google's official API
 - 🎨 **Customizable UI** - Publishable views that you can customize
 - ⚙️ **Configurable** - Extensive configuration options
 - 📱 **Responsive Design** - Works perfectly on all devices
 - 🧪 **Well Tested** - Comprehensive test suite included
 - 📚 **Well Documented** - Clear documentation and examples
+- 🔄 **Auto-Prompt** - Automatic Google One Tap modal appears without user interaction
 
 ## Requirements
 
@@ -94,13 +95,36 @@ protected $fillable = [
 ];
 ```
 
+## How Google One Tap Works
+
+Google One Tap provides a seamless sign-in experience by automatically displaying a modal popup when users visit your login page. Here's what happens:
+
+1. **Automatic Modal**: When users visit `/login`, a Google One Tap modal automatically appears
+2. **User Selection**: Users can select their Google account from the modal
+3. **Instant Authentication**: No redirects - authentication happens instantly in the popup
+4. **Fallback Button**: If the modal doesn't appear, users can click the "Sign in with Google" button
+
+### Visual Example
+
+The Google One Tap modal looks like this:
+
+```
+┌─────────────────────────────────────┐
+│  🔵 Sign in as John Doe             │
+│  john.doe@gmail.com                 │
+│  ┌─────────────────────────────────┐ │
+│  │        Continue as John         │ │
+│  └─────────────────────────────────┘ │
+└─────────────────────────────────────┘
+```
+
 ## Usage
 
 ### Basic Usage
 
 Once installed and configured, the package automatically provides these routes:
 
-- `GET /login` - Login page with Google One Tap
+- `GET /login` - Login page with Google One Tap modal
 - `POST /auth/google/callback` - Handles Google authentication
 - `GET /dashboard` - Protected dashboard (requires authentication)
 - `POST /logout` - User logout

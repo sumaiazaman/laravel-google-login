@@ -48,9 +48,10 @@ class ConfigurationTest extends TestCase
 
     public function test_one_tap_ui_configuration()
     {
-        $this->assertFalse(config('google-onetap.one_tap.auto_prompt'));
+        $this->assertTrue(config('google-onetap.one_tap.auto_prompt'));
         $this->assertEquals('signin', config('google-onetap.one_tap.context'));
         $this->assertEquals('popup', config('google-onetap.one_tap.ux_mode'));
+        $this->assertFalse(config('google-onetap.one_tap.cancel_on_tap_outside'));
         
         $buttonConfig = config('google-onetap.one_tap.button');
         $this->assertEquals('standard', $buttonConfig['type']);

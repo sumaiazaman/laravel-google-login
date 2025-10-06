@@ -102,19 +102,14 @@
         <div id="alert" class="alert"></div>
         
         <div class="google-signin-container">
-            <!-- Google One Tap Configuration -->
             <div id="g_id_onload"
                  data-client_id="{{ config('google-onetap.client_id') }}"
                  data-context="{{ config('google-onetap.one_tap.context', 'signin') }}"
                  data-ux_mode="{{ config('google-onetap.one_tap.ux_mode', 'popup') }}"
                  data-callback="handleCredentialResponse"
-                 data-auto_prompt="{{ config('google-onetap.one_tap.auto_prompt', true) ? 'true' : 'false' }}"
-                 data-cancel_on_tap_outside="{{ config('google-onetap.one_tap.cancel_on_tap_outside', false) ? 'true' : 'false' }}"
-                 data-prompt_parent_id="{{ config('google-onetap.one_tap.prompt_parent_id') }}"
-                 data-moment_callback="onOneTapMoment">
+                 data-auto_prompt="{{ config('google-onetap.one_tap.auto_prompt', 'false') ? 'true' : 'false' }}">
             </div>
-
-            <!-- Fallback Sign-In Button -->
+            
             <div class="g_id_signin"
                  data-type="{{ config('google-onetap.one_tap.button.type', 'standard') }}"
                  data-shape="{{ config('google-onetap.one_tap.button.shape', 'rectangular') }}"
@@ -123,10 +118,6 @@
                  data-size="{{ config('google-onetap.one_tap.button.size', 'large') }}"
                  data-logo_alignment="{{ config('google-onetap.one_tap.button.logo_alignment', 'left') }}">
             </div>
-        </div>
-
-        <div id="one-tap-info" class="alert alert-info" style="display: none;">
-            <strong>Google One Tap:</strong> The automatic sign-in modal will appear shortly. If it doesn't appear, you can use the button above to sign in.
         </div>
         
         <p class="footer-text">
@@ -194,45 +185,9 @@
             }
         }
 
-        // Handle Google One Tap moments (when the prompt is displayed, dismissed, etc.)
-        function onOneTapMoment(moment) {
-            console.log('Google One Tap moment:', moment);
-            const infoDiv = document.getElementById('one-tap-info');
-
-            switch (moment.getMomentType()) {
-                case 'display':
-                    console.log('Google One Tap modal displayed');
-                    infoDiv.style.display = 'none';
-                    break;
-                case 'skipped':
-                    console.log('Google One Tap skipped:', moment.getSkippedReason());
-                    infoDiv.textContent = 'Google One Tap was skipped. Please use the sign-in button below.';
-                    infoDiv.style.display = 'block';
-                    break;
-                case 'dismissed':
-                    console.log('Google One Tap dismissed:', moment.getDismissedReason());
-                    infoDiv.textContent = 'Google One Tap was dismissed. You can still sign in using the button below.';
-                    infoDiv.style.display = 'block';
-                    break;
-            }
-        }
-
         // Initialize Google One Tap when the page loads
         window.onload = function() {
             console.log('Google One Tap initialized');
-
-            // Show info about One Tap after a short delay if it hasn't appeared
-            setTimeout(() => {
-                const infoDiv = document.getElementById('one-tap-info');
-                if (infoDiv.style.display === 'none' || !infoDiv.style.display) {
-                    infoDiv.style.display = 'block';
-
-                    // Hide the info after 5 seconds
-                    setTimeout(() => {
-                        infoDiv.style.display = 'none';
-                    }, 5000);
-                }
-            }, 2000);
         };
     </script>
 </body>

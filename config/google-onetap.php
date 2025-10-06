@@ -113,11 +113,9 @@ return [
     */
 
     'one_tap' => [
-        'auto_prompt' => true,  // Enable automatic Google One Tap modal
+        'auto_prompt' => false,
         'context' => 'signin',
         'ux_mode' => 'popup',
-        'cancel_on_tap_outside' => false,
-        'prompt_parent_id' => null,
         'button' => [
             'type' => 'standard',
             'shape' => 'rectangular',
