@@ -1,5 +1,5 @@
 {
-    "name": "sumaia/google-onetap-login",
+    "name": "sumaiazaman/google-onetap-login",
     "description": "A Laravel package for seamless Google One Tap authentication integration",
     "keywords": [
         "laravel",
@@ -14,8 +14,8 @@
     "license": "MIT",
     "authors": [
         {
-            "name": "Sumaia",
-            "email": "contact@sumaia.dev"
+            "name": "Sumaia Zaman",
+            "email": "sumaiazaman@gmail.com"
         }
     ],
     "require": {
